@@ -16,4 +16,6 @@ model <- glm(prog.comf ~ PSTAT100 + PSTAT115 + PSTAT120 + PSTAT122 + PSTAT126
              + PSTAT131 + PSTAT160 + PSTAT174 + CS9 + CS16 + LING104 + LING110
              + LING111 + CS130 + CS165 + ECON145 + PSTAT127 + PSTAT134 + CS5,
              data = logistics,
-             family = "binomial")
+             family = gaussian(link = "identity"))
+summary(model)
+# note: this is basically linear regression. not sure if this is okay?
