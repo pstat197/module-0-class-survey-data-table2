@@ -29,7 +29,7 @@ logistics <- logistics %>%
 table(logistics$prog.comf)
 # You should see something like: 0 1
 
-# 2️⃣ Fit the logistic regression
+# Fit the logistic regression
 model1 <- glm(prog.comf ~ PSTAT100 + PSTAT115 + PSTAT120 + PSTAT122 + PSTAT126 +
                PSTAT131 + PSTAT160 + PSTAT174 + CS9 + CS16 + LING104 + LING110 +
                LING111 + CS130 + CS165 + ECON145 + PSTAT127 + PSTAT134 + CS5,
@@ -38,6 +38,20 @@ model1 <- glm(prog.comf ~ PSTAT100 + PSTAT115 + PSTAT120 + PSTAT122 + PSTAT126 +
 
 summary(model1)
 
+# Rank step
+
+coef_table <- summary(model1)$coefficients
+coef_table <- coef_table[-1, , drop = FALSE]   # remove intercept row
+
+# Convert to data frame and sort by estimate descending
+ranked_courses <- data.frame(coef_table) |>
+  rownames_to_column("Course") |>
+  arrange(desc(Estimate))
+
+# View the ranked table
+print(ranked_courses)
+
+# This model seems to be not that well, because it combines 1/2/3 to beginner, and 4/5 to advanced
 
 # Third try
 logistics <- logistics %>%
@@ -52,3 +66,17 @@ model_ord <- polr(prog.comf ~ PSTAT100 + PSTAT115 + PSTAT120 + PSTAT122 +
                   Hess = TRUE)
 
 summary(model_ord)
+
+# Rank Step
+
+coef_table <- coef(summary(model_ord))
+
+# Turn into a data frame, add course names, and sort by coefficient value
+ranked_courses3 <- data.frame(coef_table) |>
+  rownames_to_column("Course") |>
+  arrange(desc(Value))
+
+# Show the ranked list
+print(ranked_courses3)
+
+# This model may be more reliable, but the results seem not make sense
