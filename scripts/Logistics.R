@@ -80,3 +80,7 @@ ranked_courses3 <- data.frame(coef_table) |>
 print(ranked_courses3)
 
 # This model may be more reliable, but the results seem not make sense
+# NEXT STEP: drop the variables (courses) that cause separation/multicollinearity, 
+# or group the variables to avoid such issues
+print(ranked_courses)
+
