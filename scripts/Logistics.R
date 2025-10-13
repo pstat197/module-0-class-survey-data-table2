@@ -4,6 +4,10 @@
 # programming comfortability?
 library(here)
 library(tidyverse)
+library(MASS)
+library(broom)
+library(effsize)
+library(lsr)
 
 # set folder to where data is saved
 folder <- 'data'
@@ -84,3 +88,33 @@ print(ranked_courses3)
 # or group the variables to avoid such issues
 print(ranked_courses)
 
+
+# Lorretta - I'll try doing ANOVA 10/12/25 ------------------------------------
+
+# read in original data set
+logistics <- read_csv(here(folder, 'background-clean.csv'))
+
+# aov model
+aov_logistics <- aov(prog.comf ~ as.factor(PSTAT100) + as.factor(PSTAT115) 
+                     + as.factor(PSTAT120) + as.factor(PSTAT122)
+                     + as.factor(PSTAT126) + as.factor(PSTAT131) 
+                     + as.factor(PSTAT160) + as.factor(PSTAT174) 
+                     + as.factor(CS9) + as.factor(CS16)
+                     + as.factor(LING104) + as.factor(LING110) 
+                     + as.factor(LING111) + as.factor(CS130) 
+                     + as.factor(CS165) + as.factor(ECON145) 
+                     + as.factor(PSTAT127) + as.factor(PSTAT134) 
+                     + as.factor(CS5),
+                      data = logistics)
+summary(aov_logistics)
+
+# ranking the top 5 courses
+results <- logistics %>% 
+  dplyr::select(prog.comf, starts_with("PSTAT"), starts_with("CS"), starts_with("LING"),
+         starts_with("ECON")) %>%
+  do(broom::tidy(aov_logistics)) %>% 
+  filter(term != "Residuals") %>% 
+  arrange(p.value)
+
+top5 <- results %>% slice_min(order_by = p.value, n = 5)
+print(top5)
