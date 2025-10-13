@@ -25,7 +25,7 @@ summary(model)
 # note: this is basically linear regression. not sure if this is okay?
 
 
-# Another try
+# Cathy binary logistics try
 logistics <- logistics %>%
   mutate(prog.comf = ifelse(prog.comf >= 4, 1, 0))
 
@@ -57,7 +57,7 @@ print(ranked_courses)
 
 # This model seems to be not that well, because it combines 1/2/3 to beginner, and 4/5 to advanced
 
-# Third try
+# Cathy ordinal logistics try
 logistics <- logistics %>%
   mutate(prog.comf = ordered(prog.comf, levels = c(1, 2, 3, 4, 5)))
 
@@ -118,3 +118,52 @@ results <- logistics %>%
 
 top5 <- results %>% slice_min(order_by = p.value, n = 5)
 print(top5)
+
+# Cathy ordinal logistics improve
+
+library(ordinal)    # for clm()
+library(brant)      # optional: PO assumption check
+
+
+# Make sure outcome is ordered factor
+logistics <- logistics %>%
+  mutate(prog.comf = ordered(prog.comf, levels = c(1, 2, 3, 4, 5)))
+
+# Use all courses (keep everything)
+predictors <- c("PSTAT100","PSTAT115","PSTAT120","PSTAT122","PSTAT126","PSTAT131",
+                "PSTAT160","PSTAT174","CS9","CS16","LING104","LING110","LING111",
+                "CS130","CS165","ECON145","PSTAT127","PSTAT134","CS5")
+
+# Keep only outcome + predictors, drop missing rows
+logistics <- logistics %>%
+  select(prog.comf, all_of(predictors)) %>%
+  drop_na()
+
+# --- 2️⃣ Fit Ordinal Logistic Model (CLM) ---
+formula <- as.formula(paste("prog.comf ~", paste(predictors, collapse = " + ")))
+model_clm <- clm(formula, data = logistics, link = "logit")
+
+summary(model_clm)
+
+# Rank Step
+
+# --- Rank Step (simple version) ---
+coefs <- summary(model_clm)$coefficients
+
+# Remove threshold rows like "1|2", "2|3", etc.
+coefs <- coefs[!grepl("\\|", rownames(coefs)), , drop = FALSE]
+
+# Create a simple ranked table
+ranked_courses <- data.frame(
+  Course = rownames(coefs),
+  Estimate = coefs[, "Estimate"],
+  StdError = coefs[, "Std. Error"]
+)
+
+# Sort by absolute coefficient (strongest effects first)
+ranked_courses <- ranked_courses[order(ranked_courses$Estimate, decreasing = TRUE), ]
+
+# Print results
+print(ranked_courses)
+
+# I improved the ordinal logistics regression, it seems to be better
