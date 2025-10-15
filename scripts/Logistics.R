@@ -136,7 +136,7 @@ predictors <- c("PSTAT100","PSTAT115","PSTAT120","PSTAT122","PSTAT126","PSTAT131
 
 # Keep only outcome + predictors, drop missing rows
 logistics <- logistics %>%
-  select(prog.comf, all_of(predictors)) %>%
+  dplyr::select(prog.comf, all_of(predictors)) %>%
   drop_na()
 
 # --- 2️⃣ Fit Ordinal Logistic Model (CLM) ---
