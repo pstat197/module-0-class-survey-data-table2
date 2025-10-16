@@ -110,14 +110,17 @@ summary(aov_logistics)
 
 # ranking the top 5 courses
 results <- logistics %>% 
-  dplyr::select(prog.comf, starts_with("PSTAT"), starts_with("CS"), starts_with("LING"),
-         starts_with("ECON")) %>%
+  dplyr::select(prog.comf, starts_with("PSTAT"), starts_with("CS"), 
+                starts_with("LING"), 
+                starts_with("ECON")) %>%
   do(broom::tidy(aov_logistics)) %>% 
   filter(term != "Residuals") %>% 
   arrange(p.value)
 
 top5 <- results %>% slice_min(order_by = p.value, n = 5)
 print(top5)
+
+# Lorretta end ----------------------------------------------------------------
 
 # Cathy ordinal logistics improve
 
