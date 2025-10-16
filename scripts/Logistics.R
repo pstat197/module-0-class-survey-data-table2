@@ -171,7 +171,7 @@ print(ranked_courses)
 
 # I improved the ordinal logistics regression, it seems to be better
 
-library(ggplot2)ß
+library(ggplot2)
 
 # Remove rows with NA (like LING110 and LING111)
 ranked_courses_plot <- ranked_courses %>%
