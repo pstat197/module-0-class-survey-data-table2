@@ -101,6 +101,10 @@ ranked_courses <- ranked_courses[order(ranked_courses$Estimate, decreasing = TRU
 print(ranked_courses)
 ```
 
+We applied Ordinal Logistics Model, which is also called Cumulative Link Model, using the clm function. The simple logistics regression model can only be applied to binary data. However, the response variable of programming comfort was recorded as 1 to 5. Thus, the prog.comf was treated as an ordered categorical variable with five levels.
+
+This clm function estimated the log-odds of a student being in a higher comfort category rather than a lower one. The model used a logit link function and maximum-likelihood estimation to obtain coefficient estimates for each course and threshold cut-points separating the ordered categories. Positive coefficients indicated courses associated with greater odds of higher programming comfort, while negative coefficients indicate courses associated with lower comfort levels. After that, the estimates of all courses were ranked from the highest to the lowest.
+
 ### Rendering tables in markdown
 
 Several functions exist for converting dataframes to markdown tables for nice display. A simple one from the `knitr` package is `knitr::kable()` .
