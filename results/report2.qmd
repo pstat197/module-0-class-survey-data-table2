@@ -27,6 +27,7 @@ library(effsize)
 library(lsr)
 library(ordinal)
 library(brant)
+library(knitr)
 
 # set folder to where data is saved
 folder <- 'data'
@@ -51,29 +52,64 @@ The analysis aimed to identify which courses were most strongly associated with 
 
 ## Findings
 
-Summarize your results. Don't try to explain every step you took; focus instead on providing the main data analytic outputs -- tables and figures -- and explaining clearly what they show. Clarify any important decisions you made in obtaining them. You can display codes if you like but it is not necessary.
-
+Using ordinal logistics regression, course enrollment patterns were examined to test how it may affect students' self-reported programming comfort on a 1-5 scale. Among all courses, it appears CS16, PSTAT127, PSTAT134, PSTAT120, and PSTAT100. This suggests that students that complete these courses are substantially more likely to report higher comfort levels in programming.
 
 ### Code chunks
 
-Insert code chunks using the *Insert* drop-down menu or `ctrl + alt + I` . By default in this document, codes will not be shown but results will. If you want to change this behavior, add the chunk option `echo: true` as below.
-
 ```{r}
 #| echo: true
-my_df <- tibble(animal = c('snake', 'gecko'),
-                threatening = c(TRUE, FALSE))
+#| 
+# Make sure outcome is ordered factor
+logistics <- logistics %>%
+  mutate(prog.comf = ordered(prog.comf, levels = c(1, 2, 3, 4, 5)))
 
-my_df
+# Use all courses (keep everything)
+predictors <- c("PSTAT100","PSTAT115","PSTAT120","PSTAT122","PSTAT126","PSTAT131",
+                "PSTAT160","PSTAT174","CS9","CS16","LING104","LING110","LING111",
+                "CS130","CS165","ECON145","PSTAT127","PSTAT134","CS5")
+
+# Keep only outcome + predictors, drop missing rows
+logistics <- logistics %>%
+  dplyr::select(prog.comf, all_of(predictors)) %>%
+  drop_na()
+
+# --- 2️⃣ Fit Ordinal Logistic Model (CLM) ---
+formula <- as.formula(paste("prog.comf ~", paste(predictors, collapse = " + ")))
+model_clm <- clm(formula, data = logistics, link = "logit")
+
+summary(model_clm)
+
+# Rank Step
+
+# --- Rank Step (simple version) ---
+coefs <- summary(model_clm)$coefficients
+
+# Remove threshold rows like "1|2", "2|3", etc.
+coefs <- coefs[!grepl("\\|", rownames(coefs)), , drop = FALSE]
+
+# Create a simple ranked table
+ranked_courses <- data.frame(
+  Course = rownames(coefs),
+  Estimate = coefs[, "Estimate"],
+  StdError = coefs[, "Std. Error"]
+)
+
+# Sort by absolute coefficient (strongest effects first)
+ranked_courses <- ranked_courses[order(ranked_courses$Estimate, decreasing = TRUE), ]
+
+# Print results
+print(ranked_courses)
 ```
-
-Code chunks will be executed in order when the document is rendered, so packages should be loaded at the very beginning of the document
 
 ### Rendering tables in markdown
 
 Several functions exist for converting dataframes to markdown tables for nice display. A simple one from the `knitr` package is `knitr::kable()` .
 
 ```{r}
-my_df %>% knitr::kable()
+kable(head(ranked_courses, 5),
+      caption = "Ordinal Logistic Regression Results by Course",
+      digits = 3,
+      row.names = FALSE)
 ```
 
 ### Figures
