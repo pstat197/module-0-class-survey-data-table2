@@ -170,3 +170,19 @@ ranked_courses <- ranked_courses[order(ranked_courses$Estimate, decreasing = TRU
 print(ranked_courses)
 
 # I improved the ordinal logistics regression, it seems to be better
+
+library(ggplot2)ß
+
+# Remove rows with NA (like LING110 and LING111)
+ranked_courses_plot <- ranked_courses %>%
+  filter(!is.na(Estimate))
+
+# Plot bar chart
+ggplot(ranked_courses_plot, aes(x = reorder(Course, Estimate), y = Estimate, fill = Estimate > 0)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Course Effects on Programming Comfort",
+       x = "Course",
+       y = "Coefficient (Log-Odds)") +
+  scale_fill_manual(values = c("red", "steelblue"), guide = FALSE) +
+  theme_minimal(base_size = 13)
