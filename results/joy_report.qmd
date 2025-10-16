@@ -1,0 +1,130 @@
+---
+title: "Analysis of class surveys"
+subtitle: "If you want a subtitle put it here"
+author: "List names here"
+date: last-modified
+published-title: "Updated"
+editor: visual
+format: html
+code-copy: true
+execute:
+  message: false
+  warning: false
+  echo: false
+  cache: true
+---
+
+Use this as a template. Keep the headers and remove all other text. Overall, your report may be quite short. When it is complete, render and then push changes to your team repository.
+
+```{r}
+# load any other packages and read data here
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+
+df = pd.read_csv('https://raw.githubusercontent.com/pstat197/module-0-class-survey-data-table2/refs/heads/main/data/background-clean.csv')
+```
+
+## Executive summary
+
+Write a one-paragraph abstract summarizing what you did and your findings. It need not be comprehensive; try to highlight the most important or interesting outcomes.
+
+## Data description
+
+Write a brief description of the dataset. Your description should cover how data were obtained, sample characteristics, and measurements taken. It does not need to be exhaustive, but sufficiently detailed to convey a clear high-level understanding of the dataset. You can utilize bullet points or tables if you feel it would help improve clarity.
+
+## Questions of interest
+
+Indicate the questions your analysis addresses. These should map one-to-one to your findings. Don't include questions you didn't answer or questions you started with and refined later. If you would rather frame them as goals or tasks rather than questions that is okay; just modify the header appropriately. However you frame what you've done, you may only have two or three items; that is fine. Provide an itemized or numbered list so that the reader can easily identify your objectives.
+
+Using random forest classifiers, we explored two questions related to the associations between courses and programming comfortability:
+
+1. Which courses are most strongly associated with higher programming comfort among students? The association in this case is measured using feature importance of the random forest model. Then we rank the importances.
+2. Does math proficiency influence the ranking of the importances of courses as predictors for programming comfortability?
+
+## Findings
+
+Summarize your results. Don't try to explain every step you took; focus instead on providing the main data analytic outputs -- tables and figures -- and explaining clearly what they show. Clarify any important decisions you made in obtaining them. You can display codes if you like but it is not necessary.
+
+RQ1: Overall Course Importance
+
+First, we fit a model using the entire dataset to identify the courses with the strongest overall association with programming comfort. The "feature importance" score from the model measures the strength of this association. The chart below shows the top 10 most important courses.
+
+The top courses most strongly associated with programming comfort are CS16, PSTAT126, CS130, CS9, and PSTAT122.
+
+| Course   |   Importance |
+|:---------|-------------:|
+| CS16     |    0.133585  |
+| PSTAT160 |    0.108485  |
+| PSTAT122 |    0.0963313 |
+| PSTAT100 |    0.0855638 |
+| PSTAT131 |    0.0854055 |
+
+!(random_forest_course_ranking.png)
+
+While feature importance reveals the strength of the relationship, it does not show the direction (i.e., whether taking the course is linked to higher or lower comfort).
+
+RQ2: The Influence of Math Proficiency
+To determine if the importance of courses changes based on a student's background, we split the dataset into three groups: those with 'advanced' math proficiency, those with 'intermediate' proficiency, and those with 'begineer' proficiency.
+
+We then ran the Random Forest analysis separately for each group. The subgroup whose math proficiency is 'beginner' is too small (n=3) to perform an analysis.
+
+The comparison table below clearly shows how the ranking of importances of courses as predictors for programming comfortability change when we take math proficiency into consideration.
+
+|   Rank | Course (adv)   |   Importance (adv) | Course (int)   |   Importance (int) |
+|-------:|:---------------|-------------------:|:---------------|-------------------:|
+|      1 | CS16           |          0.157618  | PSTAT100       |          0.144121  |
+|      2 | PSTAT122       |          0.0982008 | CS16           |          0.138668  |
+|      3 | PSTAT134       |          0.0944759 | CS9            |          0.103457  |
+|      4 | PSTAT174       |          0.0862864 | PSTAT122       |          0.0978085 |
+|      5 | PSTAT160       |          0.0859582 | PSTAT160       |          0.0905109 |
+|      6 | PSTAT115       |          0.0846802 | PSTAT115       |          0.0741204 |
+|      7 | PSTAT131       |          0.0708727 | PSTAT174       |          0.0740372 |
+|      8 | CS9            |          0.068808  | CS5            |          0.0565468 |
+|      9 | CS130          |          0.0631079 | PSTAT131       |          0.0483299 |
+|     10 | PSTAT126       |          0.0563149 | ECON145        |          0.0357465 |
+
+### Code chunks
+
+Insert code chunks using the *Insert* drop-down menu or `ctrl + alt + I` . By default in this document, codes will not be shown but results will. If you want to change this behavior, add the chunk option `echo: true` as below.
+
+```{r}
+#| echo: true
+my_df <- tibble(animal = c('snake', 'gecko'),
+                threatening = c(TRUE, FALSE))
+
+my_df
+```
+
+Code chunks will be executed in order when the document is rendered, so packages should be loaded at the very beginning of the document
+
+### Rendering tables in markdown
+
+Several functions exist for converting dataframes to markdown tables for nice display. A simple one from the `knitr` package is `knitr::kable()` .
+
+```{r}
+my_df %>% knitr::kable()
+```
+
+### Figures
+
+To include any figures not generated by code chunks, use *Insert \> Figure / Image* or `![CAPTION](path/file.ext)` .
+
+Most of the time code chunks producing plots will render fine. However, to adjust sizing or alignment, use the chunk options `fig-width` and `fig-height` . Captions can be added with `fig-cap` .
+
+```{r}
+#| fig-width: 4
+#| fig-height: 3
+#| fig-align: left
+#| fig-cap: A terrible plot.
+
+my_df %>% 
+  ggplot(aes(x = animal, y = threatening)) + 
+  geom_col()
+```
+
+
+To include any hyperlinks, use `[display text](url)` .
