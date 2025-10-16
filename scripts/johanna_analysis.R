@@ -1,3 +1,9 @@
+## Johanna Jansen
+## Statistical Correlation Scores
+# Research Question: What classes are most likely correlated with high
+# programming comfortability?
+
+## load libraries
 library(tidyverse)
 
 data <- read_csv("PSTAT 197/module-0-class-survey-data-table2/data/background-clean.csv")
@@ -18,8 +24,6 @@ correlations_sorted
 
 top5 <- head(correlations_sorted, 5)
 top5
-
-The top 5 classes associated with high programming comfortability are CS 16, CS 130, PSTAT 134, LING104, LING 110.
 
 library(ggplot2)
 library(tidyverse)
@@ -42,6 +46,10 @@ correlations <- ggplot(cor_df, aes(x = reorder(class, spearman), y = spearman)) 
   theme_minimal()
 
 correlations
+
+Summary: The top 5 The top 5 classes associated with high programming comfortability are CS 16, CS 130, PSTAT 134, PSTAT 127, LING 111, LING 110, and LING 104, with PSTAT 127, LING 111, LING 110, and LING 104 having the same correlation score with programming comfort.
+
+Data description: The data was obtained through a survey filled out by every student in PSTAT 197A. Not every student consented to allowing their responses to be used.
 
 
 
