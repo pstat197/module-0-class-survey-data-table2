@@ -40,7 +40,7 @@ logistics <- read_csv(here(folder, 'background-clean.csv'))
 
 In this project, certain university courses were examined to see how closely associated they are with the students' comfort in programming of PSTAT197A. Using survey data from 60 students, the relationship between programming comfort levels (rated 1-5) and course enrollment across several departments was analyzed.
 
-Joy’s portion of the analysis used random forest models to identify and rank the courses most strongly correlated with higher programming comfort. The analysis reveals that CS16, PSTAT 160, and PSTAT 122 are the most important predictors overall. Additionally, we find that this ranking of important courses differs significantly based on a student's prior math proficiency, which will be elaborated in the Findings section.
+Joy’s portion of the analysis used random forest models to identify and rank the courses most strongly correlated with higher programming comfort. The analysis reveals that CS 16, PSTAT 160, and PSTAT 122 are the most important predictors overall. Additionally, we find that this ranking of important courses differs significantly based on a student's prior math proficiency, which will be elaborated in the Findings section.
 
 Lorretta's and Cathy's portion of the analysis used ordinal logistic regression to compare comfort levels between students who had taken versus not taken each course. This approach identified the top five courses that are most strongly linked to higher programming comfort. The findings of this portion of the analysis suggest that introductory computer science and advanced data science courses have the strongest positive associations with programming comfort, highlighting their potential role in improving students' confidence and skill development.
 
@@ -145,7 +145,7 @@ caption = "Top five courses by Spearman rho with programming comfort",
 digits = 3)
 ```
 
-The results show that CS16, CS130, PSTAT134, PSTAT127, and LING111 are among the courses most positively correlated with programming comfort. This suggests that both introductory computer science courses and upper-division data science or linguistics courses may contribute to greater programming confidence. However, since correlation measures association rather than causation, these results should be interpreted as patterns rather than proof of direct influence.
+The results show that CS 16, CS 130, PSTAT 134, PSTAT 127, and LING 111 are among the courses most positively correlated with programming comfort. This suggests that both introductory computer science courses and upper-division data science or linguistics courses may contribute to greater programming confidence. However, since correlation measures association rather than causation, these results should be interpreted as patterns rather than proof of direct influence.
 
 ### Logistic Regression - Cathy and Lorretta
 
@@ -223,10 +223,10 @@ ggplot(ranked_courses_plot, aes(x = reorder(Course, Estimate), y = Estimate, fil
 
 According to the figure and table, the top five courses that mostly correlated to the programming comfort were CS 16, PSTAT 127, PSTAT 134, PSTAT 120, and PSTAT 100.
 
-In particular, CS16 and PSTAT127 emerged as the most influential predictors with estimates of 3.381 and 3.176 respectively. It suggests that foundational computer science and data science
+In particular, CS 16 and PSTAT 127 emerged as the most influential predictors with estimates of 3.381 and 3.176 respectively. It suggests that foundational computer science and data science
 
 Using ordinal logistics regression, course enrollment patterns were examined to test how they may affect students' self-reported programming comfort on a 1-5 scale. Among all courses, it appears CS 16, PSTAT 127, PSTAT 134, PSTAT 120, and PSTAT 100. This suggests that students that complete these courses are substantially more likely to report higher comfort levels in programming.
 
 ## Conclusion
 
-Across random forest, ordinal logistic regression, and Spearman correlation, the results agree that introductory computer science and advanced statistics or data science courses are most strongly associated with higher programming comfort, with CS16 appearing near the top in every approach and courses such as PSTAT122, PSTAT127, PSTAT134, and PSTAT160 also showing strong positive links. Differences in exact rankings are because random forests emphasize joint predictive power and capture nonlinear interactions, ordinal logistic regression estimates each course’s directional effect while adjusting for the others, and Spearman correlation reports the simple pairwise association between a single course and comfort. Viewed together, these complementary approaches point to the same takeaway that foundational programming and applied data courses are key experiences linked to greater confidence in programming.
+Across random forest, ordinal logistic regression, and Spearman correlation, the results agree that introductory computer science and advanced statistics or data science courses are most strongly associated with higher programming comfort, with CS 16 appearing near the top in every approach and courses such as PSTAT 122, PSTAT 127, PSTAT 134, and PSTAT 160 also showing strong positive links. Differences in exact rankings are because random forests emphasize joint predictive power and capture nonlinear interactions, ordinal logistic regression estimates each course’s directional effect while adjusting for the others, and Spearman correlation reports the simple pairwise association between a single course and comfort. Viewed together, these complementary approaches point to the same takeaway that foundational programming and applied data courses are key experiences linked to greater confidence in programming.
