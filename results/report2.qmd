@@ -1,0 +1,145 @@
+---
+title: "Analysis of class surveys"
+subtitle: "If you want a subtitle put it here"
+author: "Anna Gornyitzki, Cathy Fang, Johanna Jansen, Joy Chang, Lorretta Lu"
+date: October 19, 2025
+published-title: "Updated"
+editor: visual
+format: html
+code-copy: true
+execute:
+  message: false
+  warning: false
+  echo: false
+  cache: true
+---
+
+```{r}
+# load any other packages and read data here
+
+# loading packages
+library(tidyverse)
+library(here)
+library(tidyverse)
+library(MASS)
+library(broom)
+library(effsize)
+library(lsr)
+library(ordinal)
+library(brant)
+library(knitr)
+
+# set folder to where data is saved
+folder <- 'data'
+
+# read in csv
+logistics <- read_csv(here(folder, 'background-clean.csv'))
+```
+
+## Executive summary
+
+In this project, certain university courses were examined to see how closely associated they are with the students' comfort in programming of PSTAT197A. Using survey data from 60 students, the relationship between programming comfort levels (rated 1-5) and course enrollment across several departments was analyzed. Lorretta's and Cathy's portion of the analysis used ordinal logistics regression to compare comfort levels between students who had taken versus not taken each course. This approach identified the top five courses that are most strongly linked to higher programming comfort. The findings of this portion of the analysis suggest that introductory computer science and advanced data science courses have the strongest positive associations with programming comfort, highlighting their potential role in improving students' confidence and skill development.
+
+## Data description
+
+The dataset `background-clean.csv` contains survey responses from 60 university students aimed at understanding factors associated with programming, statistical, and mathematical comfortability and proficiency. Data were collected through a self-reported questionnaire that asked participants to rate their comfort and proficiency with programming, statistics, and mathematics on a five point scale, with 1 being least comfortable and 5 being most comfortable. Additional variables recorded include course enrollment indicators across several departments, most notably Computer Science, Statistics, Linguistics, and Economics. Each course variable is coded as a binary variable, with 1 having taken the course and 0 having not taken the course before. This data set allows for comparative and inferential analyses.
+
+## Question of interest
+
+The analysis aimed to identify which courses were most strongly associated with students' comfort in programming. Specifically, we addressed the following question:
+
+> 1.  *What are the top five courses that are most associated with higher self-reported programming comfort among students?*
+
+## Findings
+
+Using ordinal logistics regression, course enrollment patterns were examined to test how it may affect students' self-reported programming comfort on a 1-5 scale. Among all courses, it appears CS16, PSTAT127, PSTAT134, PSTAT120, and PSTAT100. This suggests that students that complete these courses are substantially more likely to report higher comfort levels in programming.
+
+### Code chunks
+
+```{r}
+#| echo: true
+#| 
+# Make sure outcome is ordered factor
+logistics <- logistics %>%
+  mutate(prog.comf = ordered(prog.comf, levels = c(1, 2, 3, 4, 5)))
+
+# Use all courses (keep everything)
+predictors <- c("PSTAT100","PSTAT115","PSTAT120","PSTAT122","PSTAT126","PSTAT131",
+                "PSTAT160","PSTAT174","CS9","CS16","LING104","LING110","LING111",
+                "CS130","CS165","ECON145","PSTAT127","PSTAT134","CS5")
+
+# Keep only outcome + predictors, drop missing rows
+logistics <- logistics %>%
+  dplyr::select(prog.comf, all_of(predictors)) %>%
+  drop_na()
+
+# --- 2️⃣ Fit Ordinal Logistic Model (CLM) ---
+formula <- as.formula(paste("prog.comf ~", paste(predictors, collapse = " + ")))
+model_clm <- clm(formula, data = logistics, link = "logit")
+
+summary(model_clm)
+
+# Rank Step
+
+# --- Rank Step (simple version) ---
+coefs <- summary(model_clm)$coefficients
+
+# Remove threshold rows like "1|2", "2|3", etc.
+coefs <- coefs[!grepl("\\|", rownames(coefs)), , drop = FALSE]
+
+# Create a simple ranked table
+ranked_courses <- data.frame(
+  Course = rownames(coefs),
+  Estimate = coefs[, "Estimate"],
+  StdError = coefs[, "Std. Error"]
+)
+
+# Sort by absolute coefficient (strongest effects first)
+ranked_courses <- ranked_courses[order(ranked_courses$Estimate, decreasing = TRUE), ]
+
+# Print results
+print(ranked_courses)
+```
+
+We applied Ordinal Logistics Model, which is also called Cumulative Link Model, using the clm function. The simple logistics regression model can only be applied to binary data. However, the response variable of programming comfort was recorded as 1 to 5. Thus, the prog.comf was treated as an ordered categorical variable with five levels.
+
+This clm function estimated the log-odds of a student being in a higher comfort category rather than a lower one. The model used a logit link function and maximum-likelihood estimation to obtain coefficient estimates for each course and threshold cut-points separating the ordered categories. Positive coefficients indicated courses associated with greater odds of higher programming comfort, while negative coefficients indicate courses associated with lower comfort levels. After that, the estimates of all courses were ranked from the highest to the lowest.
+
+### Rendering tables in markdown
+
+Several functions exist for converting dataframes to markdown tables for nice display. A simple one from the `knitr` package is `knitr::kable()` .
+
+```{r}
+kable(head(ranked_courses, 5),
+      caption = "Ordinal Logistic Regression Results by Course",
+      digits = 3,
+      row.names = FALSE)
+```
+
+### Figures
+
+To include any figures not generated by code chunks, use *Insert \> Figure / Image* or `![CAPTION](path/file.ext)` .
+
+Most of the time code chunks producing plots will render fine. However, to adjust sizing or alignment, use the chunk options `fig-width` and `fig-height` . Captions can be added with `fig-cap` .
+
+```{r}
+library(ggplot2)
+
+# Remove rows with NA
+ranked_courses_plot <- ranked_courses %>%
+  filter(!is.na(Estimate))
+
+# Plot bar chart
+ggplot(ranked_courses_plot, aes(x = reorder(Course, Estimate), y = Estimate, fill = Estimate > 0)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Course Effects on Programming Comfort",
+       x = "Course",
+       y = "Estimates") +
+  scale_fill_manual(values = c("red", "steelblue"), guide = FALSE) +
+  theme_minimal(base_size = 11)
+```
+
+### Links
+
+To include any hyperlinks, use `[display text](url)` .
